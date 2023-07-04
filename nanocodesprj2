@@ -1,0 +1,40 @@
+import requests
+import csv
+from bs4 import BeautifulSoup
+
+def scape_amazon_products(url):
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text, 'html.parser')
+    
+    product_listings=soup.find_all('div', {'data-component-type': 's-search-result'})
+    
+    with open('product_detail.csv','w', newline='', encoding='utf-8')as csvfile:
+        writer=csv.writer(csvfile)
+        writer.writerow(['Title', 'Price', 'Rating'])
+        for product in product_listings:
+            title_element=product.find('span', {'class': 'a-size-medium'})
+            if title_elem is not None:
+                title=title_elem.text.strip()
+            else:
+                title = 'N/A'
+
+            price_elem = product.find('span', {'class': 'a-off-screen'})
+            if price_elem is not None:
+                price = price_elem.text.strip()
+            else:
+                price = 'N/A'
+
+            rating_elem = product.find('span', {'class': 'a-icon-alt'})
+            if rating_elem is not None:
+                rating = rating_elem.text.strip()
+            else:
+                rating = 'N/A'
+
+            writer.writerow([title, price, rating])
+
+    print("Scraping complete. Product details saved in product_details.csv.")
+
+
+
+url = 'https://www.amazon.com/s?k=laptops'
+scape_amazon_products(url)
